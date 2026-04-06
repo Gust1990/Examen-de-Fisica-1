@@ -9,22 +9,13 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
 
     <style>
-        /* PANTALLA DE CARGA (SPLASH SCREEN) */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #ffffff;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s;
-        }
-        .splash-icon { font-size: 100px; }
-
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; color: #333; line-height: 1.6; padding: 20px; text-align: center; margin: 0; }
-        .container { max-width: 850px; margin: 20px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top: 6px solid #0056b3; min-height: 400px; display: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; color: #333; line-height: 1.6; padding: 20px; text-align: center; }
+        .container { max-width: 850px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top: 6px solid #0056b3; min-height: 400px; }
         h1 { color: #0056b3; border-bottom: 2px solid #e9ecef; padding-bottom: 15px; }
         .pantalla { display: none; }
         .activa { display: block; }
         
+        /* Grid para el menú de unidades */
         .grid-unidades { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; margin-top: 20px;}
         .btn-unidad { background: #6c757d; color: white; padding: 15px; font-size: 1.1em; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; font-weight: bold;}
         .btn-unidad:hover { background: #5a6268; transform: translateY(-2px); }
@@ -49,18 +40,13 @@
         .progreso { font-size: 1.2em; color: #6c757d; margin-bottom: 5px; font-weight: bold; }
         .unidad-titulo { font-size: 1em; color: #17a2b8; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* BARRA DE PROGRESO */
-        .barra-progreso-contenedor { width: 100%; background-color: #e9ecef; border-radius: 10px; height: 12px; margin-bottom: 20px; overflow: hidden; }
-        .barra-progreso-relleno { height: 100%; background-color: #28a745; width: 0%; transition: width 0.4s ease; }
+        /* Estilos de la Barra de Progreso */
+        .barra-progreso-contenedor { width: 100%; background-color: #e9ecef; border-radius: 10px; height: 22px; margin-bottom: 20px; overflow: hidden; border: 1px solid #ced4da; }
+        .barra-progreso-relleno { height: 100%; background-color: #28a745; width: 0%; transition: width 0.4s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.85em; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
-
-    <div id="splash-screen">
-        <div class="splash-icon">🧭</div>
-    </div>
-
-    <div class="container" id="main-content">
+    <div class="container">
         <h1>Examen de Física 1</h1>
         <div id="pantalla-inicio" class="pantalla activa">
             <p>Selecciona la unidad que deseas evaluar. Tienes exactamente <strong>60 segundos</strong> para responder por pregunta</p>
@@ -83,18 +69,24 @@
                     <option value="6">Unidad 6</option>
                 </select>
                 <table>
-                    <thead><tr><th>Fecha</th><th>Puntaje</th><th>Porcentaje</th></tr></thead>
-                    <tbody id="tabla-historial"></tbody>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Puntaje</th>
+                            <th>Porcentaje</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-historial">
+                    </tbody>
                 </table>
             </div>
         </div>
-
         <div id="pantalla-juego" class="pantalla">
             <div class="unidad-titulo" id="texto-unidad-actual">Unidad X</div>
             <div class="progreso" id="texto-progreso">Pregunta 1 de X</div>
             
             <div class="barra-progreso-contenedor">
-                <div id="barra-progreso" class="barra-progreso-relleno"></div>
+                <div id="barra-progreso" class="barra-progreso-relleno">0%</div>
             </div>
 
             <div class="reloj" id="tiempo-restante">⏳ 60s</div>
@@ -107,50 +99,119 @@
             </div>
             <button class="btn-volver btn" onclick="volverAlInicio()">⏹️ Abandonar el Examen</button>
         </div>
-
         <div id="pantalla-resultados" class="pantalla">
             <h2 id="mensaje-final">¡Test Terminado!</h2>
             <p style="font-size: 1.5em;" id="texto-nota"></p>
             <button class="btn-unidad destacado btn" style="margin-top: 20px;" onclick="volverAlInicio()">🏠 Volver al Menú</button>
         </div>
     </div>
-
     <script>
-        // BASE DE DATOS (Incluye las 70 preguntas procesadas)
         const basesDeDatos = {
             1: [
-                { q: "1.- Verdadero o Falso (justifique claramente): 'La notación científica solo se usa para mediciones que arrojen números o muy grandes o muy pequeños'.", a: "Falso. La notación científica también se usa para expresar cualquier número de forma estandarizada y para indicar correctamente el número de cifras significativas." },
-                { q: "2.- (P) Conteste (justifique claramente): ¿Puede el valor numérico obtenido al calcular una cantidad física a partir de datos de mediciones tener mayor número de cifras significativas que el menos preciso de los datos usados?", a: "No. El resultado final no puede tener más cifras significativas que el factor original que tenga la menor cantidad de cifras significativas (el menos preciso)." },
-                { q: "3.- Verdadero o Falso (justifique claramente): 'La homogeneidad dimensional es una condición suficiente para asegurar que la ecuación matemática de un modelo físico es correcta.'", a: "Falso. Es una condición necesaria, pero no suficiente. Una ecuación puede ser dimensionalmente correcta pero faltarle constantes numéricas adimensionales." },
-                { q: "4.- (P) Verdadero o Falso (justifique claramente): 'Para poder comunicar magnitudes vectoriales es imprescindible conocer el sistema de coordenadas elegido'.", a: "Falso. El vector es un ente independiente del sistema de referencia. Lo que depende del sistema son las 'componentes' del vector, pero el vector en sí no." },
-                { q: "5.- Conteste (justifique claramente): ¿Cuáles pueden ser las ventajas de que la humanidad acuerde un sistema de unidades patrones común como lo es el SI?", a: "Facilita el intercambio de información científica, evita errores de conversión y permite que los experimentos sean replicables en cualquier parte del mundo." }
+                { q: "1.- Verdadero o Falso (justifique claramente): 'La notación científica solo se usa para mediciones que arrojen números o muy grandes o muy pequeños'.", a: "Falso. La notación científica también se usa para expresar cualquier número de forma estandarizada y, muy importante, para indicar correctamente el número de cifras significativas de una medición, sin importar su tamaño." },
+                { q: "2.- (P) Conteste (justifique claramente): ¿Puede el valor numérico obtenido al calcular una cantidad física a partir de datos de mediciones tener mayor número de cifras significativas que el menos preciso de los datos usados en el cálculo?", a: "No. Al realizar multiplicaciones o divisiones, el resultado final no puede tener más cifras significativas que el factor original que tenga la menor cantidad de cifras significativas (el menos preciso)." },
+                { q: "3.- Verdadero o Falso (justifique claramente): 'La homogeneidad dimensional es una condición suficiente para asegurar que la ecuación matemática de un modelo físico es correcta.'", a: "Falso. Es una condición necesaria, pero no suficiente. Una ecuación puede ser dimensionalmente correcta pero estar mal físicamente si le faltan constantes numéricas adimensionales (por ejemplo, olvidar el 1/2 en la fórmula de energía cinética)." },
+                { q: "4.- (P) Verdadero o Falso (justifique claramente): 'Para poder comunicar magnitudes vectoriales es imprescindible conocer el sistema de coordenadas elegido'.", a: "Falso. El vector es un ente matemático independiente del sistema de referencia. Lo que sí depende del sistema de coordenadas elegido son las 'componentes' de ese vector, pero la magnitud vectorial en sí existe sin él." },
+                { q: "5.- Conteste (justifique claramente): ¿Cuáles pueden ser las ventajas de que la humanidad acuerde un sistema de unidades patrones común como lo es el Sistema Internacional?", a: "Facilita enormemente el intercambio de información científica, tecnológica y comercial a nivel global. Evita errores graves de conversión y permite que cualquier experimento sea replicable en cualquier parte del mundo." }
             ],
             2: [
-                { q: "1.- ¿Cómo se define matemáticamente el desplazamiento? ¿Es lo mismo que distancia recorrida?", a: "El desplazamiento es el vector que une la posición inicial con la final. No son iguales: el desplazamiento es vectorial y la distancia recorrida es un escalar que mide todo el camino." },
-                { q: "2.- ¿Es lo mismo velocidad que rapidez?", a: "No. La velocidad es vectorial (módulo, dirección y sentido). La rapidez es un escalar que representa solo el módulo de la velocidad." },
-                { q: "3.- ¿El módulo del desplazamiento es siempre igual a la distancia recorrida en movimiento rectilíneo?", a: "Falso. Solo es igual si el movimiento rectilíneo no tiene cambios de sentido durante el trayecto." },
-                { q: "4.- Si la velocidad media es cero, ¿la partícula permaneció en reposo todo el tiempo?", a: "Falso. La velocidad media es cero si el desplazamiento neto es cero (volvió al punto de partida), aunque se haya movido." },
-                { q: "5.- ¿Aceleración positiva significa que la rapidez aumenta?", a: "Falso. Si la velocidad es negativa y la aceleración positiva, el cuerpo está frenando." },
-                { q: "6.- ¿Cómo se determina la aceleración media?", a: "Es el cociente entre el cambio del vector velocidad (Δv) y el intervalo de tiempo (Δt). Es una magnitud vectorial medida en m/s²." },
-                { q: "10.- Si mantiene aceleración constante, ¿la trayectoria es siempre recta?", a: "No necesariamente. Si la aceleración constante no es paralela a la velocidad inicial, la trayectoria es una parábola (como el tiro oblicuo)." }
+                { q: "1.- ¿Cómo se define matemáticamente en Física el desplazamiento de una partícula? ¿Son equivalentes los términos: 'desplazamiento', 'distancia recorrida' o 'longitud de trayectoria'? Explique y dé ejemplos aclaratorios.", a: "Matemáticamente, el desplazamiento es un vector que une la posición inicial con la final. No son equivalentes: el desplazamiento es vectorial y depende solo de los puntos inicial y final; la distancia recorrida es un escalar que mide todo el camino. Ejemplo: al dar una vuelta a una pista circular, tu desplazamiento es cero, pero la distancia recorrida es el perímetro de la pista." },
+                { q: "2.- ¿Es lo mismo velocidad que rapidez? Justifique sus respuestas y dé ejemplos.", a: "No es lo mismo. La velocidad es una magnitud vectorial (requiere módulo, dirección y sentido). La rapidez es un escalar que representa el módulo de la velocidad o la distancia recorrida sobre el tiempo. Ejemplo: un auto en círculo a 50 km/h tiene rapidez constante, pero su velocidad cambia porque cambia su dirección." },
+                { q: "3.- Justifique claramente si la siguiente afirmación es Verdadera o Falsa: 'Siempre que el movimiento sea rectilíneo, el módulo del desplazamiento es igual a la distancia recorrida'.", a: "Falso. Solo es igual si el movimiento rectilíneo no tiene cambios de sentido. Si un objeto avanza 10 m en línea recta y retrocede 5 m sobre la misma línea, la distancia recorrida es 15 m, pero el módulo del desplazamiento es 5 m." },
+                { q: "4.- (P) Justifique claramente si la siguiente afirmación es Verdadera o Falsa: 'Si la velocidad media de una partícula en un determinado intervalo de tiempo es cero necesariamente la partícula permaneció en reposo durante todo el intervalo de tiempo'.", a: "Falso. La velocidad media es el desplazamiento total dividido por el tiempo. Si la partícula sale de un punto y regresa exactamente al inicial, su desplazamiento es cero y, por ende, su velocidad media es cero, aunque se haya movido." },
+                { q: "5.- (P) Si la aceleración de un cuerpo móvil es positiva ¿significa necesariamente que el módulo de su velocidad aumenta? Explique y dé ejemplos.", a: "Falso. El signo de la aceleración solo indica su sentido respecto al sistema de coordenadas. Si la velocidad es negativa y la aceleración es positiva, el cuerpo está frenando. Ejemplo: un auto moviéndose en reversa (v < 0) que pisa el freno." },
+                { q: "6.- (P) ¿Cómo se determina la aceleración media de una partícula? ¿Es una magnitud escalar o vectorial?; ¿en qué unidades del SI se mide?", a: "La aceleración media se determina como el cociente entre el cambio de velocidad (vector Δv) y el intervalo de tiempo (Δt). Es una magnitud vectorial. En el SI se mide en metros por segundo al cuadrado (m/s²)." },
+                { q: "7.- Si la trayectoria de una partícula no es rectilínea, aunque su rapidez se mantenga constante ¿significa esto que la aceleración de la partícula es nula? Explique y dé un ejemplo.", a: "No, no es nula. Al no ser rectilínea, la dirección de la velocidad cambia constantemente, generando una variación vectorial y, en consecuencia, una aceleración centrípeta. Ejemplo: un auto tomando una curva a velocidad constante de 60 km/h." },
+                { q: "8.- En un gráfico de la posición en función del tiempo ¿Qué significado físico tiene la pendiente de la recta tangente a la curva en un instante determinado?", a: "Representa la velocidad instantánea de la partícula en ese preciso instante de tiempo." },
+                { q: "9.- En un gráfico v = f(t) ¿qué representa el área bajo la curva, en un intervalo Δt?", a: "Representa el desplazamiento (variación de posición, Δx) de la partícula durante ese intervalo de tiempo." },
+                { q: "10.- (P) Si un móvil cualquiera mantiene durante su movimiento una aceleración constante, ¿es necesariamente rectilínea su trayectoria? Justifique su respuesta.", a: "No necesariamente. Si el vector aceleración constante no es colineal (paralelo) con el vector velocidad inicial, la trayectoria será una parábola (movimiento curvilíneo), como en el caso de un tiro oblicuo bajo gravedad constante." },
+                { q: "11.- (P) Verdadero o Falso:\na) En un MRU la velocidad media debe ser igual a la velocidad instantánea.\nb) Si un cuerpo tiene MRU su velocidad no puede ser nula.\nc) La gráfica de la posición en función del tiempo de un cuerpo que se mueve con MRU siempre tiene pendiente constante y positiva.\nd) Dos cuerpos que se mueve con MRU sobre una misma recta nunca se encontrarán si sus velocidades son iguales.\ne) Dos cuerpos que se mueven con MRU sobre una misma recta nunca se encontrarán si tienen la misma rapidez.", a: "<b>a) Verdadero.</b> <b>b) Falso.</b> El reposo puede ser un caso trivial de MRU. <b>c) Falso.</b> La pendiente puede ser negativa. <b>d) Verdadero.</b> <b>e) Falso.</b> Si tienen la misma rapidez pero sentidos opuestos, chocarán." },
+                { q: "12.- Se grafica la velocidad de un cuerpo que se mueve con MRU. ¿Cuánto vale la pendiente de la curva obtenida? ¿qué representa el área encerrada por la curva?", a: "La pendiente vale cero porque la velocidad es constante. El área encerrada representa el desplazamiento del cuerpo." },
+                { q: "13.- (P) ¿Cómo se define la aceleración instantánea de una partícula? ¿Es un vector que tiene siempre la misma dirección que el vector velocidad? Explique y dé ejemplos de situaciones reales.", a: "Se define como la derivada de la velocidad respecto al tiempo. No siempre tiene la misma dirección. Ejemplo: En un frenado, tienen direcciones opuestas; en movimiento circular, son perpendiculares." },
+                { q: "14.- Si la aceleración de un cuerpo móvil es positiva ¿significa necesariamente que el módulo de su velocidad aumenta? Explique y dé ejemplos.", a: "Falso. Si el auto va en reversa (velocidad negativa) y acelera positivamente, en realidad está frenando." },
+                { q: "15.- Una aceleración negativa ¿implica que el móvil está frenándose? Explique y ejemplifique.", a: "No necesariamente. Si la velocidad también es negativa, el móvil aumenta su rapidez en sentido negativo. Ejemplo: un objeto en caída libre." },
+                { q: "16.- (P) ¿A qué se denomina fuerza resultante o neta sobre una partícula? ¿Es SIEMPRE el resultado de la interacción con otro cuerpo, o es en cambio un concepto físico abstracto y útil?", a: "Es la suma vectorial de todas las fuerzas individuales. Es un concepto abstracto y matemático muy útil, ya que no proviene de un solo cuerpo, sino de la suma de múltiples interacciones." },
+                { q: "17.- La Primera Ley de Newton ¿describe el comportamiento de un cuerpo (puntual) en equilibrio de traslación?", a: "Sí, establece que si la fuerza neta es cero, mantendrá su reposo o MRU, que es la definición de equilibrio de traslación." },
+                { q: "18.- La Segunda Ley de Newton, ¿relaciona magnitudes escalares o es una relación vectorial? Justifique y dé un ejemplo.", a: "Es vectorial (ΣF = m·a). Fuerza neta y aceleración son vectores con misma dirección y sentido. Ejemplo: Si empujo un bloque al norte, la aceleración será al norte." },
+                { q: "19.- ¿La masa es una propiedad intrínseca de cada cuerpo, mientras que el peso resulta de la interacción de dos cuerpos?", a: "Verdadero. La masa es medida de inercia e intrínseca. El peso es la atracción gravitacional, depende del planeta." },
+                { q: "20.- (P) ¿El peso y la masa se refieren a la misma magnitud física, solo que están expresadas en unidades diferentes?", a: "Falso. Masa es escalar (kg), peso es fuerza vectorial (Newtons)." },
+                { q: "21.- El par de fuerzas acción - reacción de la Tercera Ley de Newton ¿se anulan entre sí cuando se aplica la Segunda Ley de Newton para determinar el movimiento de un cuerpo?", a: "No, porque actúan sobre cuerpos diferentes. La 2da Ley solo suma fuerzas sobre EL MISMO cuerpo." },
+                { q: "22.- (P) La fuerza resultante sobre un cuerpo no es el único factor que determina la trayectoria del cuerpo.", a: "Verdadero. También influye la velocidad inicial. Un proyectil y un objeto en caída libre tienen la misma fuerza neta (peso) pero distintas trayectorias." },
+                { q: "23.- Si un cuerpo se mueve con aceleración constante, es porque la suma de todas las fuerzas sobre él es cero.", a: "Falso. Si la suma es cero, la aceleración es cero. Para que haya aceleración, debe haber fuerza neta distinta de cero." },
+                { q: "24.- (P) Considere la afirmación: Sara pesa 55 kg. ¿Qué error hay en la afirmación? Dé dos formas de corregirlo.", a: "El error es usar kg (masa) para el peso. Corrección: 'La masa de Sara es 55 kg' o 'Sara pesa 540 N'." },
+                { q: "25.- Tu amigo dice que la fuerza vertical ejercida sobre un proyectil cuando está en lo más alto de su vuelo es cero. ¿Por qué dice eso? ¿Estás de acuerdo o en desacuerdo?", a: "Lo dice confundiendo velocidad vertical (que es cero ahí) con fuerza. Estoy en desacuerdo; el peso (gravedad) actúa siempre, por eso el proyectil vuelve a caer." },
+                { q: "26.- (P) ¿Puede un cuerpo de masa m, ubicado sobre un plano inclinado que forma un ángulo α con la horizontal, deslizar hacia abajo con velocidad constante? ¿Cuánto debe valer la fuerza de rozamiento en tal caso?", a: "Sí, si la fuerza neta es cero. El roce dinámico debe ser igual a la componente del peso paralela al plano: Fr = m·g·sen(α)." },
+                { q: "27.- ¿Puede moverse un objeto en la misma dirección y sentido que la fuerza de roce? Justifique claramente su respuesta.", a: "Sí. Ejemplo: Una caja sobre un camión que acelera hacia adelante. El roce estático empuja la caja hacia adelante, en el mismo sentido que el movimiento." },
+                { q: "28.- Califique de Verdadera o Falsa: 'Cuando se coloca un cuerpo en la parte superior de un plano inclinado, dicho cuerpo siempre desciende con una aceleración de módulo igual a g·sen(α)'.", a: "Falsa. Eso ocurre solo si el plano no tiene fricción. Si hay roce, la aceleración es menor." },
+                { q: "29.- (P) Califique si la siguiente afirmación es verdadera o falsa: 'El módulo de la fuerza de roce siempre es igual al módulo de la fuerza Normal'.", a: "Falsa. El roce es proporcional a la Normal (Fr = μ·N), no igual, pues μ suele ser menor a 1." },
+                { q: "30.- Una gran caja se sitúa sobre la plataforma de un camión sin amarrarla a éste. Cuando el camión acelera, la caja no se mueve. ¿Qué fuerza produce su aceleración? Si frena brusco ¿Qué pasa?", a: "La acelera la fuerza de roce estático. Si frena, la inercia hace que la caja deslice hacia adelante (hacia la cabina)." },
+                { q: "31.- Explique qué se entiende por un sistema de cuerpos vinculados y mencione tres ejemplos de situaciones físicas.", a: "Cuerpos unidos por restricciones geométricas (cuerdas, contacto). Ejemplos: Máquina de Atwood (polea), vagones de tren, bloques contiguos empujados." },
+                { q: "32.- (P) ¿Cómo afecta la presencia de una polea ideal en un sistema de cuerpos vinculados? Describa su influencia en la tensión y aceleración.", a: "Una polea ideal solo cambia la dirección de la tensión. La tensión y el módulo de la aceleración se mantienen iguales a lo largo de la cuerda." },
+                { q: "33.- Califique como V o F: 'En un sistema de cuerpos vinculados con una cuerda inextensible, todos los cuerpos tienen siempre la misma aceleración en módulo y dirección'.", a: "Falsa. Tienen el mismo módulo, pero no necesariamente dirección (ej. uno puede caer verticalmente y otro moverse horizontalmente)." },
+                { q: "34.- Califique como V o F: 'Si dos masas están unidas por una cuerda ideal, las tensiones T1 y T2 son un ejemplo de la tercera ley de newton'.", a: "Falsa. Las tensiones actúan sobre cuerpos distintos a través de un medio (la cuerda), no son pares de acción-reacción directos entre las dos masas." },
+                { q: "35.- (P) En un sistema de dos masas conectadas por una cuerda ideal se aplica una fuerza F sobre una masa. Explique ¿por qué todo el sistema se acelera de la misma manera?", a: "Porque la cuerda inextensible es un vínculo cinemático: obliga a que no se acerquen ni se alejen, por lo que ambas masas deben tener exactamente el mismo módulo de aceleración." }
             ],
             3: [
-                { q: "1.- Relación entre velocidad y trayectoria.", a: "La dirección del vector velocidad instantánea siempre es tangente a la trayectoria en todo punto." },
-                { q: "6.- ¿Qué características debe tener un movimiento para definir un periodo T?", a: "Debe ser un Movimiento Circular Uniforme (MCU). La rapidez y la velocidad angular deben ser constantes." },
-                { q: "12.- ¿ω y γ están en el mismo plano que el movimiento?", a: "Falso. Son vectores axiales, se encuentran sobre el eje de rotación (perpendicular al plano del movimiento)." }
+                { q: "1.- En un movimiento en un plano, la dirección del vector v ¿Qué relación tiene con la trayectoria? ¿Es posible que en un movimiento en dos dimensiones el vector velocidad v sea perpendicular, en algún instante, al vector posición r? Si la respuesta es afirmativa, dar un ejemplo.", a: "La dirección del vector velocidad instantánea siempre es tangente a la trayectoria en todo punto. Sí, es posible que el vector velocidad v sea perpendicular al vector posición r. Un ejemplo clásico es el movimiento circular uniforme centrado en el origen de coordenadas, donde la posición r es radial y la velocidad v es tangente a la circunferencia." },
+                { q: "2.- (P) La ecuación vectorial r(t) = r₀ + v₀·t + ½·a·t², que da la posición r de una partícula en función del tiempo t, y donde r₀ es su posición inicial y v₀ su velocidad inicial (ambas en el instante t = 0) y a su aceleración constante, siendo r₀, v₀ y a conocidas ¿es suficiente para describir totalmente el movimiento de una partícula sobre la que actúa una fuerza neta constante?", a: "Sí, es completamente suficiente. Por la Segunda Ley de Newton, una fuerza neta constante produce una aceleración constante. Conociendo esa aceleración (a) y las condiciones iniciales de posición (r₀) y velocidad (v₀), la ecuación vectorial dada (ecuación horaria) permite calcular la posición exacta y el estado de movimiento en cualquier instante t." },
+                { q: "3.- ¿En qué punto de la trayectoria de un proyectil la velocidad v (¡vector, no lo olvide!) es perpendicular a la aceleración a?", a: "En el punto de altura máxima. En ese preciso instante, la componente vertical de la velocidad se hace cero, por lo que el vector velocidad es completamente horizontal. Como el vector aceleración (la gravedad) es vertical hacia abajo, ambos vectores forman un ángulo de 90° (son perpendiculares)." },
+                { q: "4.- (P) La velocidad, ¿es paralela a la aceleración en algún momento o en algún tipo de movimiento de algún proyectil?", a: "En un 'tiro oblicuo' o parabólico estricto, la velocidad y la aceleración nunca son paralelas. Sin embargo, en un movimiento de proyectil tipo 'caída libre' o 'tiro vertical' (lanzamiento recto hacia arriba o hacia abajo), la velocidad y la aceleración sí son paralelas o antiparalelas durante todo el trayecto, ya que todo ocurre sobre la misma línea vertical." },
+                { q: "5.- Para resolver problemas y/o ejercicios de 'tiro oblicuo' o 'movimiento de proyectiles' ¿es necesario recordar muchas fórmulas, o es suficiente comprender y recordar la ecuación dada en 2.-?", a: "Es suficiente comprender y recordar la ecuación vectorial general. Un tiro oblicuo es simplemente la superposición de dos movimientos independientes: un MRU en el eje horizontal y un MRUV en el eje vertical bajo la aceleración de la gravedad. Al descomponer esa única ecuación vectorial en componentes X e Y, se obtienen automáticamente todas las herramientas necesarias sin necesidad de memorizar fórmulas extra." },
+                { q: "6.- (P) Responder. ¿Qué características debe tener un movimiento circunferencial para que se pueda definir un periodo T? (Justifique su respuesta).", a: "Debe ser un Movimiento Circular Uniforme (MCU). Esto significa que la rapidez (módulo de la velocidad tangencial) y la velocidad angular deben ser constantes. Solo si el cuerpo gira a un ritmo fijo e invariable, el tiempo que tarda en dar una vuelta completa será siempre el mismo, permitiendo definir un valor único para el periodo T." },
+                { q: "7.- Responder. El tambor de un secarropa gira a razón de 2800 rpm ¿Qué significa 'rpm'?", a: "'rpm' significa 'revoluciones por minuto'. Es una unidad de frecuencia que indica que el tambor del secarropa da 2800 vueltas (revoluciones) completas sobre su propio eje en el lapso de un minuto (60 segundos)." },
+                { q: "8.- (P) Responder. ¿Con qué regla se determina la dirección del vector velocidad angular ω? ¿Y el sentido? (Justifique su respuesta).", a: "La dirección del vector velocidad angular siempre coincide con el eje de rotación (es perpendicular al plano en el que ocurre el movimiento). El sentido se determina con la 'regla de la mano derecha': si se curvan los dedos de la mano derecha siguiendo el sentido de giro del cuerpo, el pulgar extendido indica el sentido del vector velocidad angular." },
+                { q: "9.- Verdadero o Falso. La relación v_t = ω·r es válida en el movimiento circunferencial uniforme (Justifique su respuesta).", a: "Verdadero. Esta ecuación relaciona la velocidad tangencial o lineal (v_t) con la velocidad angular (ω) y el radio de la trayectoria (r). Es válida en el MCU (y también como valor instantáneo en el MCUV) porque se deriva geométricamente de la relación del arco de circunferencia s = θ·r, dividiendo ambos miembros por el tiempo." },
+                { q: "10.- Verdadero o Falso. Sobre un disco que gira con una velocidad constante, se encuentran dos piedras. Una de las piedras en el borde del disco y la otra a la mitad del radio. Ambas piedras tienen iguales valores de v_t y ω (Justifique su respuesta).", a: "Falso. Ambas piedras comparten la misma velocidad angular (ω) porque giran solidarias y barren el mismo ángulo en el mismo tiempo. Sin embargo, sus velocidades tangenciales (v_t) son diferentes. Como v_t = ω·r, la piedra que está en el borde (mayor radio) recorrerá más distancia lineal en el mismo tiempo, por lo que su velocidad tangencial será mayor." },
+                { q: "11.- (P) Verdadero o Falso. Una partícula describe una trayectoria circunferencial, gracias a la presencia de la aceleración tangencial (Justifique su respuesta).", a: "Falso. La responsable de que la trayectoria sea circunferencial es la aceleración centrípeta (o radial), que es la que se encarga de cambiar continuamente la dirección del vector velocidad. La aceleración tangencial solo cambia el módulo de la velocidad (la rapidez)." },
+                { q: "12.- (P) Verdadero o Falso. La velocidad y la aceleración angular de una partícula con MCUV, se encuentran orientados sobre el mismo plano en donde se produce el movimiento (Justifique su respuesta).", a: "Falso. La velocidad angular (ω) y la aceleración angular (γ) son vectores axiales. Se encuentran sobre la línea perpendicular al plano de rotación (el eje de rotación), siguiendo la regla de la mano derecha o del sacacorchos, no sobre el plano donde se produce el movimiento." },
+                { q: "13.- Verdadero o Falso. La aceleración radial es un vector antiparalelo al vector posición de una partícula con movimiento circunferencial, si se toma el sistema de coordenadas en el centro de la trayectoria (Justifique su respuesta).", a: "Verdadero. Si el origen de coordenadas está en el centro de la trayectoria circular, el vector posición r apunta desde el centro hacia la partícula (hacia afuera). La aceleración radial (centrípeta) siempre apunta hacia el centro de la trayectoria. Por lo tanto, tienen la misma dirección pero sentidos opuestos (son antiparalelos)." },
+                { q: "14.- (P) Verdadero o Falso. Es posible que en un instante determinado una partícula tenga velocidad angular ω igual a cero, y sin embargo tener aceleración angular γ diferente de cero (Justifique su respuesta).", a: "Verdadero. Esto ocurre exactamente cuando la partícula invierte su sentido de rotación. En ese preciso instante, la velocidad angular se hace cero momentáneamente, pero la aceleración angular (que causó el frenado y la posterior inversión) sigue siendo distinta de cero." },
+                { q: "15.- Verdadero o Falso. La relación v_t = ω·r, es aplicable en el movimiento circunferencial uniforme variado (Justifique su respuesta).", a: "Verdadero. La relación v_t = ω·r es una relación geométrica instantánea que vincula variables lineales y angulares. Es perfectamente válida en cualquier instante de tiempo tanto en el MCU como en el MCUV." },
+                { q: "16.- (P) Si viaja en un tren de alta velocidad (pero constante), ¿en qué dirección lanzaría un objeto hacia arriba para que regrese a sus manos? Justificar la respuesta.", a: "Lo lanzaría exactamente en dirección vertical (perpendicular al piso del tren). Como el tren viaja a velocidad constante, se comporta como un sistema de referencia inercial. El pasajero y el objeto ya comparten la misma velocidad horizontal del tren; al lanzarlo verticalmente, el objeto sigue avanzando horizontalmente por inercia junto con el tren, por lo que caerá de nuevo exactamente en sus manos." },
+                { q: "17.- Cuando un jugador de básquetbol corre hacia el tablero para intentar marcar un doble, por lo general lanza la pelota suavemente y verticalmente hacia arriba relativo a él, antes de estar demasiado cerca del aro ¿por qué? Explicar.", a: "Porque la pelota ya posee la misma velocidad horizontal que el jugador en carrera (inercia). Al lanzarla 'verticalmente hacia arriba relativo a él', la pelota desde la perspectiva de la cancha en reposo describe un tiro oblicuo (parábola), sumando la velocidad horizontal de la carrera con la vertical del lanzamiento. Así la pelota avanza hacia adelante mientras sube y cae en el aro." },
+                { q: "18.- (P) ¿Podría un par de personas jugar al ping pong sobre la cubierta de un barco que se mueve a 15 km/h sin tener en cuenta el movimiento del barco? Justificar la respuesta.", a: "Sí, podrían jugar perfectamente sin tenerlo en cuenta. De acuerdo al Principio de Relatividad de Galileo, las leyes de la mecánica (y por ende el comportamiento de la pelota) son idénticas en cualquier sistema de referencia inercial. Un barco moviéndose a velocidad constante en línea recta es un marco inercial." },
+                { q: "19.- En el interior de un avión, una azafata sirve un vaso de agua a un pasajero. ¿Cómo se puede ver afectada su tarea si la velocidad del avión es cero, si no es cero pero constante, o si el avión está acelerando? Explicar y dar ejemplos.", a: "Si la velocidad es cero o constante, el avión es un marco inercial y servir el agua será exactamente igual que en la superficie terrestre (el agua cae verticalmente al vaso). Si el avión está acelerando (por ejemplo, en pleno despegue), se convierte en un marco no inercial. Aparecerán 'fuerzas de inercia'; la superficie del agua en la botella y el vaso se inclinará, y el agua tenderá a derramarse hacia atrás." }
             ],
             4: [
-                { q: "1.- ¿La cantidad de movimiento lineal p depende del sistema de coordenadas?", a: "Sí. Como p = m·v y la velocidad depende del sistema de referencia, la cantidad de movimiento también es relativa al observador." },
-                { q: "8.- ¿Ec = ½ mv² es definición o teorema?", a: "Es una definición. El teorema es el del Trabajo y la Energía Cinética (W_neto = ΔEc)." },
-                { q: "11.- ¿Puede ser negativa la energía potencial gravitatoria?", a: "Sí, porque depende del nivel de referencia (h=0) elegido arbitrariamente. Si está por debajo de ese nivel, es negativa." }
+                { q: "1.- ¿La cantidad de movimiento lineal de una partícula depende del sistema de coordenadas elegido? Justifique su respuesta.", a: "Sí, depende del sistema de referencia inercial elegido. Dado que la cantidad de movimiento se define como el producto de la masa por la velocidad (p = m·v) y la velocidad depende del sistema de referencia desde donde se mida, la cantidad de movimiento también lo hará." },
+                { q: "2.- (P) Califique de Verdadero o falso la siguiente afirmación. Justifique su respuesta. 'Los vectores p y Δp NUNCA tienen la misma dirección'.", a: "Falso. Los vectores p (cantidad de movimiento) y Δp (variación de la cantidad de movimiento) pueden tener perfectamente la misma dirección. Por ejemplo, si un objeto en movimiento rectilíneo simplemente acelera o frena en línea recta, el vector cambio de momento (Δp) es paralelo y colineal al vector momento original (p)." },
+                { q: "3.- La fuerza normal N, que realiza una mesa (en reposo) sobre un cuaderno apoyado en ella (también en reposo), ¿ejerce un impulso sobre él en un cierto intervalo de tiempo? ¿Por qué no cambia la cantidad de movimiento lineal del cuaderno en ese intervalo de tiempo? Justifique la respuesta.", a: "Sí, la fuerza Normal ejerce un impulso porque actúa durante un intervalo de tiempo (I_N = N·Δt). Sin embargo, la cantidad de movimiento del cuaderno no cambia porque el impulso neto total sobre él es nulo. El impulso de la Normal hacia arriba se cancela exactamente con el impulso del peso hacia abajo." },
+                { q: "4.- (P) Califique de Verdadero o falso la siguiente afirmación. Justifique su respuesta. 'Si el I_Neto sobre una partícula en un intervalo de tiempo es nulo entonces el p de la partícula fue constante durante todo el intervalo de tiempo considerado'.", a: "Falso. Si el Impulso Neto en un intervalo es nulo, significa que la cantidad de movimiento al inicio y al final del intervalo son exactamente iguales (p_inicial = p_final). Sin embargo, durante el transcurso de ese intervalo, la cantidad de movimiento pudo haber variado por la acción momentánea de fuerzas y luego vuelto a su valor original." },
+                { q: "5.- Califique de Verdadero o falso la siguiente afirmación. Justifique su respuesta. 'El p_f alcanzado por un objeto de masa m después de aplicarle un impulso neto I_Neto es siempre igual a I_Neto'.", a: "Falso. Según el Teorema del Impulso y la Cantidad de Movimiento (I_Neto = p_final - p_inicial), el momento final es igual al impulso neto MÁS la cantidad de movimiento inicial (p_f = I_Neto + p_i). Solo serían iguales si el objeto hubiese partido del reposo (p_i = 0)." },
+                { q: "6.- El trabajo efectuado por una fuerza de fricción sobre un cuerpo puntual, ¿puede ser positivo? Si su respuesta es afirmativa, dé un ejemplo.", a: "Sí, el trabajo de una fuerza de fricción puede ser positivo. Por ejemplo, cuando una caja está sobre la plataforma de un camión que arranca hacia adelante, la fuerza de fricción estática que la plataforma ejerce sobre la caja tira de ella en la misma dirección del movimiento. Como la fuerza y el desplazamiento tienen el mismo sentido, el trabajo de esa fricción es positivo." },
+                { q: "7.- A lo largo de un desplazamiento igual a 1,00 m i, ¿puede el trabajo de una fuerza F = 3,0 N i producir el mismo cambio de energía cinética a un cuerpo, que el trabajo de otra fuerza F = 3,0 N j a lo largo de un desplazamiento igual a 1,00m j? Justifique.", a: "Sí, producirán el mismo cambio de energía cinética. En el primer caso, el trabajo es W = (3,0 N)·(1,00 m) = 3,0 J (fuerza y desplazamiento en X). En el segundo caso, el trabajo es W = (3,0 N)·(1,00 m) = 3,0 J (fuerza y desplazamiento en Y). Por el Teorema del Trabajo y la Energía, al ser el trabajo numéricamente igual en ambos casos, el cambio de energía cinética será el mismo." },
+                { q: "8.- (P) La E_c ¿es una magnitud escalar o vectorial? La expresión E_c = ½ mv², ¿es una definición o un teorema?", a: "La energía cinética (E_c) es una magnitud estrictamente escalar, ya que proviene del producto punto del vector velocidad consigo mismo (v·v = v²). La expresión E_c = ½ mv² es una definición física, no un teorema. (El teorema es el del Trabajo y la Energía Cinética: W_neto = ΔE_c)." },
+                { q: "9.- (P) Si dos cuerpos cualesquiera tienen la misma cantidad de movimiento p, ¿tendrán la misma energía cinética? Explique la respuesta.", a: "No necesariamente. La cantidad de movimiento es p = m·v y la energía cinética es E_c = p² / (2m). Si dos cuerpos tienen igual momento 'p' pero distintas masas, el que tenga la masa más pequeña tendrá mayor energía cinética, porque en la fórmula la masa divide al término constante p²." },
+                { q: "10.- Para una partícula de masa m, el valor de su energía cinética depende del sistema de referencia inercial donde se lo mida.", a: "Verdadero. La energía cinética depende directamente del cuadrado de la velocidad (E_c = ½ mv²). Dado que la velocidad es un concepto relativo que cambia dependiendo del sistema de referencia inercial elegido por el observador, la energía cinética calculada también dependerá de dicho sistema." },
+                { q: "11.- (P) ¿Puede ser negativa la energía potencial gravitatoria de un cuerpo? ¿Y la energía cinética? Explique.", a: "Sí, la energía potencial gravitatoria puede ser negativa porque depende del nivel de referencia (h = 0) elegido arbitrariamente; si el cuerpo está por debajo de este nivel, su Ug es negativa. La energía cinética (Ec = ½ mv²), en cambio, NUNCA puede ser negativa porque la masa siempre es positiva y la velocidad al cuadrado siempre da un valor positivo o cero." },
+                { q: "12.- Siempre que una partícula describa un movimiento circunferencial en un plano horizontal, se conserva su energía mecánica.", a: "Falso. Solo se conserva si no actúan fuerzas no conservativas que realicen trabajo (como la fricción). Si hay rozamiento, la energía mecánica disminuirá. (Si es MCU ideal y sin fricción, sí se conserva, pero la afirmación dice 'Siempre')." },
+                { q: "13.- Si se deja caer un objeto desde una altura H (despreciando el roce con el aire) el cambio de su energía mecánica ΔEm es igual si se hubiera realizado en la luna.", a: "Verdadero. Al despreciar el roce con el aire, el sistema es conservativo. En ambos casos (Tierra y Luna), al actuar solo la fuerza peso (fuerza conservativa), la energía mecánica se conserva, por lo tanto el cambio o variación de energía mecánica (ΔEm) es exactamente igual a cero en ambos lugares." },
+                { q: "14.- (P) Una fuerza es conservativa si el trabajo sobre una partícula para ir de A hasta otro punto B, es independiente del camino o trayectoria realizada.", a: "Verdadero. Esa es precisamente la definición fundamental de una fuerza conservativa (como el peso o la fuerza elástica): el trabajo realizado por ella solo depende de la posición inicial y final, y no de la trayectoria seguida." },
+                { q: "15.- En un laboratorio en Tierra, se deja caer un objeto de masa m desde una altura H (desprecie el roce con el aire) y se determina el cambio de su energía cinética. Se realiza el mismo ensayo en la Luna, donde la aceleración de su gravedad es g_L = 0,17 g, entonces el resultado obtenido del cambio de su energía cinética y el cambio de su energía potencial gravitatoria es el mismo.", a: "Falso. Aunque en ambos casos el ΔEm = 0 (por lo que ΔEc = -ΔUg), los valores absolutos del cambio de energía dependen de la gravedad. En la Tierra el trabajo del peso es m·g·H, y en la Luna es m·(0,17g)·H. Por lo tanto, el cambio de energía cinética en la Luna será mucho menor (un 17%) que en la Tierra." },
+                { q: "16.- (P) El Momento de rotación M de una partícula respecto a un punto, solo depende de la distancia a la que está aplicada una Fuerza y del valor de la Fuerza aplicada", a: "Falso. El momento de una fuerza (M o Torque) es un producto vectorial (M = r × F). Por lo tanto, no solo depende de la distancia (módulo de r) y del valor de la fuerza (módulo de F), sino también del ángulo que forman ambos vectores (M = r·F·sen θ)." },
+                { q: "17.- La cantidad de movimiento angular L de una partícula es una magnitud vectorial cuyo valor depende del sistema de referencia.", a: "Verdadero. La cantidad de movimiento angular se define como L = r × p. Dado que depende del vector posición 'r' (que se mide desde un origen de coordenadas elegido) y de la cantidad de movimiento 'p' (que depende de la velocidad relativa al sistema de referencia), su valor cambia si cambiamos el sistema de referencia." },
+                { q: "18.- (P) ¿Qué relación hay entre el momento de fuerzas resultante M y la cantidad de movimiento angular L?", a: "La relación es el equivalente rotacional de la Segunda Ley de Newton: el momento de las fuerzas resultantes aplicadas a una partícula es igual a la rapidez de cambio de su cantidad de movimiento angular en el tiempo (M_neto = dL/dt)." },
+                { q: "19.- ¿Bajo qué condiciones se conserva la cantidad de movimiento angular L de una partícula? Explicar.", a: "Se conserva cuando el Momento de fuerzas resultante (o Torque neto) que actúa sobre la partícula, respecto a un punto de referencia, es nulo. Si M_neto = 0, entonces dL/dt = 0, lo que implica que el vector L permanece constante en el tiempo." },
+                { q: "20.- El momento de Inercia es una propiedad de la partícula puntual, al igual que la masa", a: "Falso. La masa es una propiedad intrínseca del cuerpo, pero el momento de inercia de una partícula puntual (I = m·r²) depende de la masa Y del cuadrado de la distancia 'r' al eje de rotación elegido. Si cambias el eje de rotación, el momento de inercia cambia, por lo que no es una propiedad absoluta de la partícula." }
             ],
             5: [
-                { q: "1.- ¿La velocidad del CM puede ser cero si todas las partículas se mueven?", a: "Sí. Si la suma vectorial de todas las cantidades de movimiento es nula (Σ pi = 0), el centro de masa está en reposo." },
-                { q: "6.- ¿En qué tipo de choque hay máxima pérdida de energía cinética?", a: "En el choque perfectamente inelástico, donde los cuerpos quedan unidos tras la colisión." }
+                { q: "1.- Verdadero o Falso (justifique claramente): 'La velocidad del centro de masa de un sistema de partículas que están todas en movimiento No puede ser igual a cero'.", a: "Falso. La velocidad del centro de masa puede ser cero si la suma vectorial de las cantidades de movimiento de todas las partículas es nula (Σ p_i = 0). Por ejemplo, dos partículas de igual masa que se mueven en direcciones opuestas con la misma rapidez tienen un centro de masa en reposo." },
+                { q: "2.- Conteste (justifique claramente): ¿Debe en el centro de masas de un sistema de partículas, necesariamente debe haber una masa?", a: "No necesariamente. El centro de masas es un punto geométrico que representa el promedio ponderado de las posiciones de las masas del sistema. Puede coincidir con el espacio vacío. Por ejemplo, en un anillo o una dona hueca, el centro de masas está en el centro geométrico, donde no hay material." },
+                { q: "3.- (P) Verdadero o Falso (justifique claramente): 'Siempre que la cantidad de movimiento lineal de un sistema de partículas sea constante, también será constante su energía cinética.'", a: "Falso. La cantidad de movimiento lineal se conserva en sistemas aislados (como en un choque inelástico). Sin embargo, en un choque inelástico, la energía cinética del sistema no se conserva (parte se transforma en calor, deformación, etc.), a pesar de que la cantidad de movimiento lineal permanezca constante." },
+                { q: "4.- (P) Conteste (justifique claramente): ¿Qué depende del sistema de referencia elegido para estudiar en Sistema de Partículas: la ubicación relativa a las masas o el vector posición r_cm?", a: "El vector posición r_cm depende del sistema de referencia elegido, ya que sus coordenadas se miden respecto al origen de ese sistema. Sin embargo, la ubicación relativa de las masas entre sí (la distancia entre ellas) es independiente del sistema de referencia inercial elegido." },
+                { q: "5.- Verdadero o Falso (justifique claramente): 'Dado un sistema aislado de dos partículas, los módulos de los respectivos cambios de la cantidad de movimiento lineal, que experimenta cada partícula al interactuar entre sí, son iguales'.", a: "Verdadero. Por la Tercera Ley de Newton, las fuerzas internas son iguales y opuestas (F₁₂ = -F₂₁). Como actúan el mismo tiempo Δt, los impulsos son iguales y opuestos. Por el teorema del impulso, el cambio de momento es igual y opuesto (Δp₁ = -Δp₂), por lo que sus módulos son estrictamente iguales (|Δp₁| = |Δp₂|)." },
+                { q: "6.- ¿En qué tipo de choque y por qué se produce la máxima pérdida de la energía cinética interna del sistema formado por los cuerpos que colisionan? Justifique claramente su respuesta.", a: "Se produce en el choque perfectamente inelástico (o totalmente inelástico). En este tipo de choque, los cuerpos quedan unidos moviéndose con la misma velocidad final. La energía cinética se disipa al máximo posible (transformándose en calor y deformación) permitiendo al mismo tiempo que se cumpla la conservación de la cantidad de movimiento lineal." },
+                { q: "7.- (P) ¿Por qué se considera que la velocidad del centro de masa de dos cuerpos que chocan es la misma antes y después del choque? Justifique claramente su respuesta.", a: "Porque durante un choque se considera que el sistema está aislado (fuerzas impulsivas internas mucho mayores que las externas). Al ser la fuerza externa neta cero, la cantidad de movimiento total se conserva (P_total = constante). Como V_cm = P_total / M_total, la velocidad del centro de masa no cambia." },
+                { q: "8.- ¿Qué indica el coeficiente de restitución? Explique claramente.", a: "El coeficiente de restitución (e) es un número adimensional (entre 0 y 1) que evalúa el grado de conservación de la energía cinética en una colisión. Relaciona la velocidad relativa de separación después del choque con la velocidad relativa de acercamiento antes del choque. Si e=1 es choque elástico; si e=0 es perfectamente inelástico." },
+                { q: "9.- (P) ¿Se puede conservar la cantidad de movimiento de un sistema aislado formado por tres cuerpos que colisionan simultáneamente? Explique.", a: "Sí, absolutamente. El principio de conservación de la cantidad de movimiento lineal (P_inicial = P_final) se aplica a cualquier sistema aislado, independientemente del número de cuerpos. Las fuerzas de colisión serán todas internas, anulándose mutuamente según la Tercera Ley de Newton, haciendo que la cantidad de movimiento total permanezca constante." },
+                { q: "10.- Califique de VERDADERA o FALSA a la siguiente proposición. JUSTIFIQUE claramente su respuesta: 'Siempre que la cantidad de movimiento lineal de un sistema de dos cuerpos que colisionan sea constante, entonces, también será constante su energía cinética'.", a: "Falsa. La cantidad de movimiento lineal de un sistema aislado se conserva en TODO tipo de colisiones. Sin embargo, la energía cinética del sistema solo se conserva (es constante) en los choques perfectamente elásticos. En los choques inelásticos, parte de la energía cinética se disipa en deformación y calor." }
             ],
             6: [
-                { q: "1.- Definición de Cuerpo Rígido.", a: "Sistema de partículas donde la distancia entre cada par de puntos permanece constante (no hay deformación)." },
-                { q: "3.- ¿Todas las partes de un rígido tienen igual ω y γ?", a: "Verdadero. Al no deformarse, todas las partes barren el mismo ángulo en el mismo tiempo." }
+                { q: "1.- Un sistema de partículas en el cual la distancia entre cada dos puntos permanece constante es un cuerpo rígido", a: "Verdadero. Esta es la definición de un modelo de cuerpo rígido en mecánica clásica: un sistema continuo o discreto de partículas donde las distancias relativas entre cualquier par de ellas no cambian bajo ninguna circunstancia (es decir, no hay deformación)." },
+                { q: "2.- Un cuerpo rígido tiene una rotación pura si todas las partículas que lo componen se mueven sobre circunferencias, cuyos centros quedan sobre una línea recta llamada eje de rotación.", a: "Verdadero. En la rotación pura, el cuerpo rígido pivota alrededor de un eje fijo. Cada punto del cuerpo describe un movimiento circular en un plano perpendicular a ese eje, y los centros de todas estas trayectorias circulares coinciden a lo largo de dicha recta (el eje de rotación)." },
+                { q: "3.- (P) No todas las partes de un cuerpo rígido en rotación alrededor de un eje fijo, tienen la misma velocidad angular ω e idéntica aceleración angular γ.", a: "Falso. La principal característica cinemática de un cuerpo rígido en rotación pura es que, al no poder deformarse, todas y cada una de sus partículas barren el mismo ángulo en el mismo tiempo. Por lo tanto, todas comparten exactamente la misma velocidad angular (ω) y la misma aceleración angular (γ), independientemente de su distancia al eje." },
+                { q: "4.- La energía cinética de rotación de un cuerpo rígido que gira con velocidad angular ω alrededor de un eje fijo en un marco de referencia inercial, depende solamente de la masa total y de la velocidad angular ω.", a: "Falso. La energía cinética de rotación (Ec_rot = ½·I·ω²) no solo depende de la masa total y de la velocidad angular, sino de cómo está distribuida esa masa respecto al eje de rotación, lo cual se cuantifica a través del Momento de Inercia (I)." },
+                { q: "5.- (P) La ecuación M = I γ es válida solamente si el cuerpo rígido puede girar alrededor de un eje que pasa por el centro de masa", a: "Falso. La ecuación de la dinámica de rotación (M_neto = I·γ, sumatoria de torques igual al momento de inercia por la aceleración angular) es válida para la rotación alrededor de CUALQUIER eje fijo en un sistema de referencia inercial, siempre que el momento de fuerzas (M) y el momento de inercia (I) se calculen con respecto a ese mismo eje de rotación elegido, no necesariamente el que pasa por el centro de masa." }
             ]
         };
 
@@ -161,24 +222,15 @@
         let tiempoRestante = 60;
         let temporizador = null;
         
-        window.addEventListener('load', function() {
+        window.onload = function() {
             mostrarHistorial();
-            setTimeout(function() {
-                const splash = document.getElementById('splash-screen');
-                const content = document.getElementById('main-content');
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    content.style.display = 'block';
-                }, 500);
-            }, 1500);
-        });
+        };
 
         function iniciarTest(unidadSeleccionada) {
             unidadActual = unidadSeleccionada;
             let bancoSeleccionado = basesDeDatos[unidadActual];
             if (!bancoSeleccionado || bancoSeleccionado.length === 0) {
-                alert("Unidad vacía temporalmente.");
+                alert("Unidad vacía.");
                 return;
             }
             preguntasMezcladas = [...bancoSeleccionado].sort(() => Math.random() - 0.5);
@@ -197,8 +249,10 @@
             }
             document.getElementById('texto-progreso').innerText = `Pregunta ${indiceActual + 1} de ${preguntasMezcladas.length}`;
             
-            let porcentajeProgreso = (indiceActual / preguntasMezcladas.length) * 100;
+            // Actualización dinámica de la barra de progreso
+            let porcentajeProgreso = Math.round((indiceActual / preguntasMezcladas.length) * 100);
             document.getElementById('barra-progreso').style.width = porcentajeProgreso + '%';
+            document.getElementById('barra-progreso').innerText = porcentajeProgreso + '%';
 
             document.getElementById('texto-pregunta').innerHTML = preguntasMezcladas[indiceActual].q;
             document.getElementById('texto-respuesta').innerHTML = preguntasMezcladas[indiceActual].a;
@@ -206,21 +260,19 @@
             document.getElementById('btn-revelar').style.display = 'inline-block';
             document.getElementById('btn-correcto').style.display = 'none';
             document.getElementById('btn-incorrecto').style.display = 'none';
-            
             tiempoRestante = 60;
             document.getElementById('tiempo-restante').innerText = `⏳ ${tiempoRestante}s`;
             clearInterval(temporizador);
             temporizador = setInterval(actualizarReloj, 1000);
         }
 
-        /* --- MEJORA: LÓGICA DE TIEMPO AGOTADO --- */
         function actualizarReloj() {
             tiempoRestante--;
             document.getElementById('tiempo-restante').innerText = `⏳ ${tiempoRestante}s`;
             if (tiempoRestante <= 0) {
                 clearInterval(temporizador);
-                alert("⏰ ¡Se te acabó el tiempo!"); // El cartel que pediste
-                siguientePregunta(false); // Se marca como Incorrecto automáticamente
+                alert("⏰ Se terminó el tiempo");
+                siguientePregunta(false);
             }
         }
 
@@ -231,8 +283,10 @@
             document.getElementById('btn-correcto').style.display = 'inline-block';
             document.getElementById('btn-incorrecto').style.display = 'inline-block';
 
+            // Al revelar la última respuesta, llena la barra al 100%
             if (indiceActual === preguntasMezcladas.length - 1) {
                 document.getElementById('barra-progreso').style.width = '100%';
+                document.getElementById('barra-progreso').innerText = '100%';
             }
         }
 
@@ -243,7 +297,6 @@
         }
 
         function finalizarTest() {
-            clearInterval(temporizador);
             document.getElementById('pantalla-juego').classList.remove('activa');
             document.getElementById('pantalla-resultados').classList.add('activa');
             let total = preguntasMezcladas.length;
@@ -255,7 +308,7 @@
         function guardarEnHistorial(puntos, total, porc) {
             let key = `historial_UNT_U${unidadActual}`;
             let historial = JSON.parse(localStorage.getItem(key)) || [];
-            historial.push({ fecha: new Date().toLocaleString(), puntaje: puntos + "/" + total, porcentaje: porc });
+            historial.push({ fecha: new Date().toLocaleString(), puntaje: puntos, total: total, porcentaje: porc });
             localStorage.setItem(key, JSON.stringify(historial));
             mostrarHistorial();
         }
@@ -267,16 +320,15 @@
             let tabla = document.getElementById('tabla-historial');
             tabla.innerHTML = "";
             if (historial.length === 0) {
-                tabla.innerHTML = "<tr><td colspan='3'>Sin datos</td></tr>";
+                tabla.innerHTML = "<tr><td colspan='3'>Vacio</td></tr>";
                 return;
             }
             historial.slice().reverse().forEach(registro => {
-                tabla.innerHTML += `<tr><td>${registro.fecha}</td><td>${registro.puntaje}</td><td>${registro.porcentaje}%</td></tr>`;
+                tabla.innerHTML += `<tr><td>${registro.fecha}</td><td>${registro.puntaje}/${registro.total}</td><td>${registro.porcentaje}%</td></tr>`;
             });
         }
 
         function volverAlInicio() {
-            clearInterval(temporizador);
             document.getElementById('pantalla-juego').classList.remove('activa');
             document.getElementById('pantalla-resultados').classList.remove('activa');
             document.getElementById('pantalla-inicio').classList.add('activa');
