@@ -4,59 +4,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Avanzado Física I - UNT</title>
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧭</text></svg>">
+
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; color: #333; line-height: 1.6; padding: 20px; text-align: center; }
         .container { max-width: 850px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top: 6px solid #0056b3; min-height: 400px; }
         h1 { color: #0056b3; border-bottom: 2px solid #e9ecef; padding-bottom: 15px; }
-        
         .pantalla { display: none; }
         .activa { display: block; }
-        
         /* Grid para el menú de unidades */
         .grid-unidades { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 30px; margin-top: 20px;}
         .btn-unidad { background: #6c757d; color: white; padding: 15px; font-size: 1.1em; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s; font-weight: bold;}
         .btn-unidad:hover { background: #5a6268; transform: translateY(-2px); }
         .btn-unidad.destacado { background: #0056b3; }
         .btn-unidad.destacado:hover { background: #004494; }
-
         .reloj { font-size: 2em; font-weight: bold; color: #d9534f; margin: 20px 0; background: #fdf2f2; padding: 10px; border-radius: 8px; border: 2px solid #d9534f; display: inline-block; }
-        
         /* Tamaños de texto reducidos */
         .pregunta-texto { font-size: 1.0em; font-weight: bold; color: #004085; margin-bottom: 30px; }
         .respuesta-texto { font-size: 0.9em; background: #f8f9fa; padding: 20px; border-left: 5px solid #28a745; border-radius: 6px; margin-bottom: 30px; display: none; text-align: left; }
-        
         .btn { border: none; padding: 12px 25px; font-size: 1.1em; border-radius: 6px; cursor: pointer; font-weight: bold; margin: 5px; transition: transform 0.1s; }
         .btn:active { transform: scale(0.95); }
         .btn-revelar { background: #17a2b8; color: white; }
         .btn-correcto { background: #28a745; color: white; display: none; }
         .btn-incorrecto { background: #dc3545; color: white; display: none; }
         .btn-volver { background: #6c757d; color: white; margin-top: 20px; }
-        
         .historial-caja { margin-top: 40px; text-align: left; background: #f8f9fa; padding: 20px; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { padding: 10px; border-bottom: 1px solid #dee2e6; text-align: center; }
         th { background: #0056b3; color: white; }
-        
         .progreso { font-size: 1.2em; color: #6c757d; margin-bottom: 5px; font-weight: bold; }
         .unidad-titulo { font-size: 1em; color: #17a2b8; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>⚛️ Examen Teoria de Fisica 1</h1>
-
+        <h1>Examen de Física 1</h1>
         <div id="pantalla-inicio" class="pantalla activa">
             <p>Selecciona la unidad que deseas evaluar. Tienes exactamente <strong>60 segundos</strong> para responder por pregunta</p>
-            
             <div class="grid-unidades">
                 <button class="btn-unidad" onclick="iniciarTest(1)">📘 Unidad 1</button>
                 <button class="btn-unidad" onclick="iniciarTest(2)">📗 Unidad 2</button>
                 <button class="btn-unidad" onclick="iniciarTest(3)">📙 Unidad 3</button>
                 <button class="btn-unidad" onclick="iniciarTest(4)">📕 Unidad 4</button>
                 <button class="btn-unidad" onclick="iniciarTest(5)">📓 Unidad 5</button>
-                <button class="btn-unidad" onclick="iniciarTest(6)">📔 Unidad 6</button>
+                <button class="btn-unidad destacado" onclick="iniciarTest(6)">📔 Unidad 6</button>
             </div>
-            
             <div class="historial-caja">
                 <h3>📊 Historial</h3>
                 <select id="filtro-historial" onchange="mostrarHistorial()" style="padding: 5px; margin-bottom: 10px; border-radius: 4px;">
@@ -80,30 +74,25 @@
                 </table>
             </div>
         </div>
-
         <div id="pantalla-juego" class="pantalla">
             <div class="unidad-titulo" id="texto-unidad-actual">Unidad X</div>
             <div class="progreso" id="texto-progreso">Pregunta 1 de X</div>
             <div class="reloj" id="tiempo-restante">⏳ 60s</div>
-            
             <div class="pregunta-texto" id="texto-pregunta">Cargando...</div>
             <div class="respuesta-texto" id="texto-respuesta">Cargando...</div>
-            
             <div>
                 <button class="btn-revelar btn" id="btn-revelar" onclick="revelarRespuesta()">👀 Ver Respuesta</button>
-                <button class="btn-correcto btn" id="btn-correcto" onclick="siguientePregunta(true)">✅ La sabía</button>
-                <button class="btn-incorrecto btn" id="btn-incorrecto" onclick="siguientePregunta(false)">❌ Me equivoqué</button>
+                <button class="btn-correcto btn" id="btn-correcto" onclick="siguientePregunta(true)">✅ Correcto</button>
+                <button class="btn-incorrecto btn" id="btn-incorrecto" onclick="siguientePregunta(false)">❌ Incorrecto</button>
             </div>
-            <button class="btn-volver btn" onclick="volverAlInicio()">⏹️ Abandonar Test</button>
+            <button class="btn-volver btn" onclick="volverAlInicio()">⏹️ Abandonar el Examen</button>
         </div>
-
         <div id="pantalla-resultados" class="pantalla">
             <h2 id="mensaje-final">¡Test Terminado!</h2>
             <p style="font-size: 1.5em;" id="texto-nota"></p>
             <button class="btn-unidad destacado btn" style="margin-top: 20px;" onclick="volverAlInicio()">🏠 Volver al Menú</button>
         </div>
     </div>
-
     <script>
         const basesDeDatos = {
             1: [
@@ -213,16 +202,13 @@
                 { q: "5.- (P) La ecuación M = I γ es válida solamente si el cuerpo rígido puede girar alrededor de un eje que pasa por el centro de masa", a: "Falso. La ecuación de la dinámica de rotación (M_neto = I·γ, sumatoria de torques igual al momento de inercia por la aceleración angular) es válida para la rotación alrededor de CUALQUIER eje fijo en un sistema de referencia inercial, siempre que el momento de fuerzas (M) y el momento de inercia (I) se calculen con respecto a ese mismo eje de rotación elegido, no necesariamente el que pasa por el centro de masa." }
             ]
         };
-
         let unidadActual = 1;
         let preguntasMezcladas = [];
         let indiceActual = 0;
         let puntaje = 0;
         let tiempoRestante = 60;
         let temporizador = null;
-
         window.onload = mostrarHistorial;
-
         function iniciarTest(unidadSeleccionada) {
             unidadActual = unidadSeleccionada;
             let bancoSeleccionado = basesDeDatos[unidadActual];
@@ -238,7 +224,6 @@
             document.getElementById('texto-unidad-actual').innerText = `UNIDAD ${unidadActual}`;
             cargarPregunta();
         }
-
         function cargarPregunta() {
             if (indiceActual >= preguntasMezcladas.length) {
                 finalizarTest();
@@ -256,7 +241,6 @@
             clearInterval(temporizador);
             temporizador = setInterval(actualizarReloj, 1000);
         }
-
         function actualizarReloj() {
             tiempoRestante--;
             document.getElementById('tiempo-restante').innerText = `⏳ ${tiempoRestante}s`;
@@ -265,7 +249,6 @@
                 revelarRespuesta();
             }
         }
-
         function revelarRespuesta() {
             clearInterval(temporizador);
             document.getElementById('texto-respuesta').style.display = 'block';
@@ -273,13 +256,11 @@
             document.getElementById('btn-correcto').style.display = 'inline-block';
             document.getElementById('btn-incorrecto').style.display = 'inline-block';
         }
-
         function siguientePregunta(esCorrecta) {
             if (esCorrecta) puntaje++;
             indiceActual++;
             cargarPregunta();
         }
-
         function finalizarTest() {
             document.getElementById('pantalla-juego').classList.remove('activa');
             document.getElementById('pantalla-resultados').classList.add('activa');
@@ -288,7 +269,6 @@
             document.getElementById('texto-nota').innerText = `Acertaste ${puntaje} de ${total} (${porcentaje}%)`;
             guardarEnHistorial(puntaje, total, porcentaje);
         }
-
         function guardarEnHistorial(puntos, total, porc) {
             let key = `historial_UNT_U${unidadActual}`;
             let historial = JSON.parse(localStorage.getItem(key)) || [];
@@ -296,7 +276,6 @@
             localStorage.setItem(key, JSON.stringify(historial));
             mostrarHistorial();
         }
-
         function mostrarHistorial() {
             let unidadFiltro = document.getElementById('filtro-historial').value;
             let key = `historial_UNT_U${unidadFiltro}`;
@@ -311,7 +290,6 @@
                 tabla.innerHTML += `<tr><td>${registro.fecha}</td><td>${registro.puntaje}/${registro.total}</td><td>${registro.porcentaje}%</td></tr>`;
             });
         }
-
         function volverAlInicio() {
             document.getElementById('pantalla-juego').classList.remove('activa');
             document.getElementById('pantalla-resultados').classList.remove('activa');
